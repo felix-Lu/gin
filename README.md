@@ -757,7 +757,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
+	"gin-quic/pkg/gin/binding"
 	"github.com/go-playground/validator/v10"
 )
 

@@ -13,8 +13,12 @@ import (
 	"path"
 	"sync"
 
-	"github.com/gin-gonic/gin/internal/bytesconv"
-	"github.com/gin-gonic/gin/render"
+	"gin-quic/pkg/gin/internal/bytesconv"
+	"gin-quic/pkg/gin/render"
+	"gin-quic/pkg/gin/testdata/certificate"
+
+	"github.com/lucas-clemente/quic-go"
+	"github.com/lucas-clemente/quic-go/http3"
 )
 
 const defaultMultipartMemory = 32 << 20 // 32 MB
@@ -306,8 +310,14 @@ func (engine *Engine) Run(addr ...string) (err error) {
 	defer func() { debugPrintError(err) }()
 
 	address := resolveAddress(addr)
+	quicConfig := &quic.Config{}
 	debugPrint("Listening and serving HTTP on %s\n", address)
-	err = http.ListenAndServe(address, engine)
+	// err = http.ListenAndServe(address, engine)
+	server := http3.Server{
+		Server:     &http.Server{Handler: engine, Addr: address},
+		QuicConfig: quicConfig,
+	}
+	err = server.ListenAndServeTLS(certificate.GetCertificatePaths())
 	return
 }
 
